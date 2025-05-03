@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  VISITOR
+  USER
+  ADMIN
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  firstName String?
+  lastName  String?
+  role      Role     @default(USER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  favoriteBreathingExercises BreathingExerciseConfiguration[]
+
+  @@map("users")
+}
+
+model BreathingExerciseType {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  configurations BreathingExerciseConfiguration[]
+
+  @@map("breathing_exercise_types")
+}
+
+model BreathingExerciseConfiguration {
+  id             Int      @id @default(autoincrement())
+  name           String
+  inhaleTime     Int
+  holdInhaleTime Int
+  exhaleTime     Int
+  holdExhaleTime Int
+  cycles         Int
+  description    String?  @db.Text
+  isPublic       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  typeId Int
+  type   BreathingExerciseType @relation(fields: [typeId], references: [id])
+  userId Int?
+  user   User?                 @relation(fields: [userId], references: [id])
+
+  @@map("breathing_exercise_configurations")
+}
+
+model BreathingExerciseSession {
+  id              Int       @id @default(autoincrement())
+  startTime       DateTime  @default(now())
+  endTime         DateTime?
+  completedCycles Int       @default(0)
+  configurationId Int
+
+  @@map("breathing_exercise_sessions")
+}
