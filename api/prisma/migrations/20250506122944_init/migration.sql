@@ -1,48 +1,25 @@
--- CreateEnum
-CREATE TYPE "Role" AS ENUM ('VISITOR', 'USER', 'ADMIN');
+-- CreateTable
+CREATE TABLE "Role" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+
+    CONSTRAINT "Role_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
+    "userName" TEXT NOT NULL,
     "firstName" TEXT,
     "lastName" TEXT,
-    "role" "Role" NOT NULL DEFAULT 'USER',
+    "password" TEXT NOT NULL,
+    "roleId" INTEGER NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "resetPasswordToken" TEXT,
-    "resetPasswordExpires" TIMESTAMP(3),
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "menus" (
-    "id" SERIAL NOT NULL,
-    "title" TEXT NOT NULL,
-    "description" TEXT,
-    "order" INTEGER NOT NULL DEFAULT 0,
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "menus_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "pages" (
-    "id" SERIAL NOT NULL,
-    "title" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
-    "slug" TEXT NOT NULL,
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "menuId" INTEGER,
-
-    CONSTRAINT "pages_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -86,17 +63,52 @@ CREATE TABLE "breathing_exercise_sessions" (
     CONSTRAINT "breathing_exercise_sessions_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "content_categories" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "description" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "content_categories_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "contents" (
+    "id" SERIAL NOT NULL,
+    "title" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "published" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "categoryId" INTEGER NOT NULL,
+
+    CONSTRAINT "contents_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "pages_slug_key" ON "pages"("slug");
+CREATE UNIQUE INDEX "users_userName_key" ON "users"("userName");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "content_categories_slug_key" ON "content_categories"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "contents_slug_key" ON "contents"("slug");
 
 -- AddForeignKey
-ALTER TABLE "pages" ADD CONSTRAINT "pages_menuId_fkey" FOREIGN KEY ("menuId") REFERENCES "menus"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "users" ADD CONSTRAINT "users_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES "Role"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "breathing_exercise_configurations" ADD CONSTRAINT "breathing_exercise_configurations_typeId_fkey" FOREIGN KEY ("typeId") REFERENCES "breathing_exercise_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "breathing_exercise_configurations" ADD CONSTRAINT "breathing_exercise_configurations_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "contents" ADD CONSTRAINT "contents_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "content_categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

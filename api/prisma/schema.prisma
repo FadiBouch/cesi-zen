@@ -13,19 +13,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  VISITOR
-  USER
-  ADMIN
+model Role {
+  id    Int    @id @default(autoincrement())
+  name  String
+  users User[]
 }
 
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
-  password  String
+  userName  String   @unique
   firstName String?
   lastName  String?
-  role      Role     @default(USER)
+  password  String
+  roleId    Int
+  role      Role     @relation(fields: [roleId], references: [id])
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -68,12 +70,30 @@ model BreathingExerciseConfiguration {
   @@map("breathing_exercise_configurations")
 }
 
-model BreathingExerciseSession {
-  id              Int       @id @default(autoincrement())
-  startTime       DateTime  @default(now())
-  endTime         DateTime?
-  completedCycles Int       @default(0)
-  configurationId Int
+model ContentCategory {
+  id          Int      @id @default(autoincrement())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  @@map("breathing_exercise_sessions")
+  contents Content[]
+
+  @@map("content_categories")
+}
+
+model Content {
+  id        Int      @id @default(autoincrement())
+  title     String
+  slug      String   @unique
+  content   String   @db.Text
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  categoryId Int
+  category   ContentCategory @relation(fields: [categoryId], references: [id])
+
+  @@map("contents")
 }
