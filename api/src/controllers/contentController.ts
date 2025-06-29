@@ -350,12 +350,12 @@ export const searchContents = async (
       published?: string;
     };
 
-    if (!q) {
-      res
-        .status(400)
-        .json({ message: "Le paramètre de recherche q est requis" });
-      return;
-    }
+    // if (!q) {
+    //   res
+    //     .status(400)
+    //     .json({ message: "Le paramètre de recherche q est requis" });
+    //   return;
+    // }
 
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
@@ -363,8 +363,8 @@ export const searchContents = async (
 
     const where: any = {
       OR: [
-        { title: { contains: q, mode: "insensitive" } },
-        { content: { contains: q, mode: "insensitive" } },
+        { title: { contains: q ? q : "", mode: "insensitive" } },
+        { content: { contains: q ? q : "", mode: "insensitive" } },
       ],
     };
 

@@ -1,3 +1,4 @@
+// types/auth.ts - modifié pour s'adapter à la connexion par username
 export interface User {
   id: number;
   username: string;
@@ -12,13 +13,24 @@ export interface AuthResponse {
   user: User;
 }
 
+// Modifié pour utiliser username au lieu d'email
 export interface LoginCredentials {
-  email: string;
+  username: string;
   password: string;
 }
 
-export interface RegisterData extends LoginCredentials {
+export interface RegisterData {
   username: string;
+  email: string;
+  password: string;
   firstName?: string;
   lastName?: string;
+}
+
+export interface User {
+  id: string | number;
+  username: string;
+  email: string;
+  createdAt?: string;
+  updatedAt?: string;
 }

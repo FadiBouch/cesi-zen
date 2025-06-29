@@ -322,7 +322,7 @@ const ContentManagement: React.FC = () => {
     if (categoryIdParam) {
       setCategoryFilter(parseInt(categoryIdParam));
     }
-  }, []);
+  }, [categoryFilter, publishedFilter]);
 
   const { data: categoriesData } = useQuery({
     queryKey: ["categories"],

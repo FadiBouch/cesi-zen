@@ -1,6 +1,12 @@
+// services/authService.ts
 import { fetchWithToken } from "./api";
-import { AuthResponse, LoginCredentials, RegisterData } from "../types/auth";
+import { AuthResponse, RegisterData } from "../types/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+interface LoginCredentials {
+  username: string;
+  password: string;
+}
 
 export const login = async (
   credentials: LoginCredentials
@@ -11,6 +17,7 @@ export const login = async (
   });
 
   await AsyncStorage.setItem("auth_token", response.token);
+  console.log(`login() response : ${response}`);
   return response;
 };
 
@@ -34,5 +41,5 @@ export const checkAuth = async (): Promise<boolean> => {
 };
 
 export const getCurrentUser = async () => {
-  return fetchWithToken("/auth/me");
+  return fetchWithToken("/auth/profile");
 };

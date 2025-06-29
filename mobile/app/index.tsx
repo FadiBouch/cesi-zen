@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { Href, Link, Stack } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "../components/common/Button";

@@ -44,7 +44,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div
             className={`${sidebarOpen ? "block" : "hidden"} font-bold text-xl`}
           >
-            Admin Panel
+            CESI Zen - Admin
           </div>
           <button
             onClick={toggleSidebar}
@@ -67,7 +67,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               >
                 <FaHome className="mr-4" />
                 <span className={`${sidebarOpen ? "block" : "hidden"}`}>
-                  Dashboard
+                  Tableau de bord
                 </span>
               </Link>
             </li>

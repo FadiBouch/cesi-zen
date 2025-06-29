@@ -440,65 +440,65 @@ export const deleteBreathingConfig = async (
   }
 };
 
-// export const addToFavorites = async (
-//   req: Request,
-//   res: Response
-// ): Promise<void> => {
-//   try {
-//     if (!req.user?.id) {
-//       res.status(401).json({ message: "Authentification requise" });
-//       return;
-//     }
+export const addToFavorites = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    if (!req.user?.id) {
+      res.status(401).json({ message: "Authentification requise" });
+      return;
+    }
 
-//     const { id } = req.params;
-//     const configId = parseInt(id);
+    const { id } = req.params;
+    const configId = parseInt(id);
 
-//     const config = await prisma.breathingExerciseConfiguration.findUnique({
-//       where: { id: configId },
-//     });
+    const config = await prisma.breathingExerciseConfiguration.findUnique({
+      where: { id: configId },
+    });
 
-//     if (!config) {
-//       res
-//         .status(404)
-//         .json({ message: "Configuration d'exercice respiratoire non trouvée" });
-//       return;
-//     }
+    if (!config) {
+      res
+        .status(404)
+        .json({ message: "Configuration d'exercice respiratoire non trouvée" });
+      return;
+    }
 
-//     if (!config.isPublic && config.userId !== req.user.id) {
-//       res.status(403).json({
-//         message:
-//           "Vous ne pouvez pas ajouter une configuration privée d'un autre utilisateur",
-//       });
-//       return;
-//     }
+    if (!config.isPublic && config.userId !== req.user.id) {
+      res.status(403).json({
+        message:
+          "Vous ne pouvez pas ajouter une configuration privée d'un autre utilisateur",
+      });
+      return;
+    }
 
-//     const userConfig = await prisma.breathingExerciseConfiguration.create({
-//       data: {
-//         name: `${config.name} (Favori)`,
-//         inhaleTime: config.inhaleTime,
-//         holdInhaleTime: config.holdInhaleTime,
-//         exhaleTime: config.exhaleTime,
-//         holdExhaleTime: config.holdExhaleTime,
-//         cycles: config.cycles,
-//         description: config.description,
-//         isPublic: false,
-//         typeId: config.typeId,
-//         userId: req.user.id,
-//       },
-//       include: {
-//         type: true,
-//       },
-//     });
+    const userConfig = await prisma.breathingExerciseConfiguration.create({
+      data: {
+        name: `${config.name} (Favori)`,
+        inhaleTime: config.inhaleTime,
+        holdInhaleTime: config.holdInhaleTime,
+        exhaleTime: config.exhaleTime,
+        holdExhaleTime: config.holdExhaleTime,
+        cycles: config.cycles,
+        description: config.description,
+        isPublic: false,
+        typeId: config.typeId,
+        userId: req.user.id,
+      },
+      include: {
+        type: true,
+      },
+    });
 
-//     res.status(201).json({
-//       message: "Configuration ajoutée aux favoris avec succès",
-//       config: userConfig,
-//     });
-//   } catch (error) {
-//     console.error("Erreur lors de l'ajout aux favoris:", error);
-//     res.status(500).json({
-//       message: "Erreur serveur",
-//       error: error instanceof Error ? error.message : String(error),
-//     });
-//   }
-// };
+    res.status(201).json({
+      message: "Configuration ajoutée aux favoris avec succès",
+      config: userConfig,
+    });
+  } catch (error) {
+    console.error("Erreur lors de l'ajout aux favoris:", error);
+    res.status(500).json({
+      message: "Erreur serveur",
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+};

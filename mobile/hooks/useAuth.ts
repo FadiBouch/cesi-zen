@@ -1,4 +1,4 @@
-// hooks/useAuth.ts
+// hooks/useAuth.ts - modifié pour utiliser le username
 import { useState, useEffect, useCallback } from "react";
 import { User } from "../types/auth";
 import * as authService from "../services/auth";
@@ -32,17 +32,17 @@ export const useAuth = () => {
     checkAuthStatus();
   }, [checkAuthStatus]);
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await authService.login({ email, password });
+      const response = await authService.login({ username, password });
       setUser(response.user);
       router.push("/");
       return response;
     } catch (err) {
       if (err instanceof Error) {
-        setError(err.message);
+        setError(err.toString());
       } else {
         setError("Erreur lors de la connexion");
       }

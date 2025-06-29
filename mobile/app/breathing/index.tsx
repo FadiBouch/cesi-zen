@@ -102,7 +102,7 @@ export default function BreathingExercisesScreen() {
         ) : (
           <FlatList
             horizontal
-            data={[{ id: null, name: "Tous" }, ...types]}
+            data={types}
             keyExtractor={(item) => (item.id ? item.id.toString() : "all")}
             renderItem={({ item }) => (
               <TouchableOpacity
@@ -151,7 +151,7 @@ export default function BreathingExercisesScreen() {
 
         {isAuthenticated && (
           <View style={styles.actionContainer}>
-            <Link href={"/breathing/create" as Href} asChild>
+            <Link href={"/breathing-configs/create" as Href} asChild>
               <Button title="Créer un exercice" onPress={() => {}} />
             </Link>
           </View>

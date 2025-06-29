@@ -1,6 +1,7 @@
+// app/(auth)/login.tsx
 import React, { useState } from "react";
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
-import { Href, Link, Stack, useRouter } from "expo-router";
+import { View, StyleSheet, Text, TouchableOpacity, Image } from "react-native";
+import { Link, Stack } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Input } from "../../components/common/Input";
 import { Button } from "../../components/common/Button";
@@ -9,25 +10,21 @@ import { useAuth } from "../../hooks/useAuth";
 import { Colors } from "../../utils/colors";
 
 export default function LoginScreen() {
-  const router = useRouter();
   const { login, error } = useAuth();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState<{
-    email?: string;
+    username?: string;
     password?: string;
   }>({});
 
   const validateForm = () => {
-    const errors: { email?: string; password?: string } = {};
+    const errors: { username?: string; password?: string } = {};
     let isValid = true;
 
-    if (!email.trim()) {
-      errors.email = "L'email est obligatoire";
-      isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      errors.email = "Veuillez saisir un email valide";
+    if (!username.trim()) {
+      errors.username = "Le nom d'utilisateur est obligatoire";
       isValid = false;
     }
 
@@ -42,12 +39,11 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!validateForm()) return;
-
     setIsSubmitting(true);
     try {
-      await login(email, password);
-    } catch (err) {
-      // Error is handled by the useAuth hook
+      await login(username, password);
+    } catch (err: any) {
+      console.log(err.toString());
     } finally {
       setIsSubmitting(false);
     }
@@ -59,7 +55,7 @@ export default function LoginScreen() {
 
       <View style={styles.content}>
         <Card style={styles.card}>
-          <Text style={styles.title}>Connectez-vous à votre compte</Text>
+          <Text style={styles.title}>Connexion</Text>
 
           {error && (
             <View style={styles.errorContainer}>
@@ -68,13 +64,12 @@ export default function LoginScreen() {
           )}
 
           <Input
-            label="Email"
-            value={email}
-            onChangeText={setEmail}
-            placeholder="votre@email.com"
-            keyboardType="email-address"
+            label="Nom d'utilisateur"
+            value={username}
+            onChangeText={setUsername}
+            placeholder="Votre nom d'utilisateur"
             autoCapitalize="none"
-            error={formErrors.email}
+            error={formErrors.username}
           />
 
           <Input
@@ -96,7 +91,7 @@ export default function LoginScreen() {
 
           <View style={styles.registerLink}>
             <Text style={styles.registerText}>Vous n'avez pas de compte ?</Text>
-            <Link href={"/register" as Href} asChild>
+            <Link href="/register" asChild>
               <TouchableOpacity>
                 <Text style={styles.registerLinkText}>S'inscrire</Text>
               </TouchableOpacity>
@@ -122,7 +117,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   title: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: "bold",
     marginBottom: 24,
     textAlign: "center",

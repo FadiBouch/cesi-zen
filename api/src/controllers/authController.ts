@@ -220,7 +220,7 @@ export const updateProfile = async (
       return;
     }
 
-    const { firstname, lastname, email } = req.body as UpdateProfileData;
+    const { firstName, lastName, email } = req.body as UpdateProfileData;
 
     if (email) {
       const existingUser = await UserController.findByEmail(email);
@@ -233,8 +233,8 @@ export const updateProfile = async (
     }
 
     const updatedUser = await UserController.update(req.user.id, {
-      firstname,
-      lastname,
+      firstName,
+      lastName,
       email,
     });
 

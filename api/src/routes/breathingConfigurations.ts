@@ -5,8 +5,16 @@ import { authenticateToken } from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
-router.get("/", breathingConfigController.getAllBreathingConfigs);
-router.get("/:id", breathingConfigController.getBreathingConfigById);
+router.get(
+  "/",
+  authenticateToken,
+  breathingConfigController.getAllBreathingConfigs
+);
+router.get(
+  "/:id",
+  authenticateToken,
+  breathingConfigController.getBreathingConfigById
+);
 
 router.use(authenticateToken);
 
@@ -30,10 +38,10 @@ router.delete(
   authenticateToken,
   breathingConfigController.deleteBreathingConfig
 );
-// router.post(
-//   "/:id/favorite",
-//   authenticateToken,
-//   breathingConfigController.addToFavorites
-// );
+router.post(
+  "/:id/favorite",
+  authenticateToken,
+  breathingConfigController.addToFavorites
+);
 
 export default router;

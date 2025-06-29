@@ -97,3 +97,9 @@ model Content {
 
   @@map("contents")
 }
+
+// model FavoriteConfigurations { 
+//   id Int @id @default(autoincrement())
+//   configurationId Int
+//   configuration BreathingExerciseConfiguration
+// }

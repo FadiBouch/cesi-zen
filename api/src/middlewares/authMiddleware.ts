@@ -1,4 +1,4 @@
-// Middlewares d'authentification et d'autorisation avec Prisma
+// middlewares/authMiddleware.ts
 import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { Role } from "@prisma/client";
@@ -6,8 +6,6 @@ import UserController from "../controllers/userController";
 import { AuthRequest, JwtPayload } from "../types/auth";
 import prisma from "../utils/database";
 import { log } from "console";
-
-// Middleware d'authentification - vérifie la validité du token JWT
 
 export const authenticateToken = (
   req: AuthRequest,

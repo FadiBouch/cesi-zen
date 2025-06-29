@@ -10,15 +10,15 @@ export const getContentBySlug = async (slug: string): Promise<Content> => {
 };
 
 export const getAllCategories = async (): Promise<Category[]> => {
-  return fetchWithToken("/categories");
+  return fetchWithToken("/content-categories");
 };
 
 export const getCategoryBySlug = async (slug: string): Promise<Category> => {
-  return fetchWithToken(`/categories/${slug}`);
+  return fetchWithToken(`/content-categories/${slug}`);
 };
 
 export const getContentsByCategory = async (
   categorySlug: string
 ): Promise<Content[]> => {
-  return fetchWithToken(`/categories/${categorySlug}/contents`);
+  return fetchWithToken(`/content-categories/${categorySlug}/contents`);
 };

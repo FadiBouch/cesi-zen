@@ -16,7 +16,6 @@ import { Colors } from "../../utils/colors";
 import { useFocusEffect } from "@react-navigation/native";
 
 export default function ContentListScreen() {
-  const router = useRouter();
   const { contents, loading, error, refreshContents } = useContents();
   const { categories, loading: loadingCategories } = useCategories();
   const [refreshing, setRefreshing] = useState(false);
@@ -44,6 +43,8 @@ export default function ContentListScreen() {
     return <Loading fullScreen message="Chargement des contenus..." />;
   }
 
+  const categoriesArray = categories || [];
+
   return (
     <SafeAreaView style={styles.container}>
       <Stack.Screen options={{ title: "Articles et Contenus" }} />
@@ -54,7 +55,7 @@ export default function ContentListScreen() {
         ) : (
           <FlatList
             horizontal
-            data={[{ id: null, name: "Tous" }, ...categories]}
+            data={categoriesArray}
             keyExtractor={(item) => (item.id ? item.id.toString() : "all")}
             renderItem={({ item }) => (
               <TouchableOpacity

@@ -33,7 +33,7 @@ async function main() {
   app.use("/breathing-types", breathingTypes);
   // FIN ROUTES
 
-  app.listen(port, () => {
+  app.listen(port, "0.0.0.0", () => {
     console.log(`App running and listening on http://localhost:${port}`);
   });
   app.get("/", (req, res) => {
