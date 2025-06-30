@@ -10,8 +10,8 @@ export const useContents = () => {
   const fetchContents = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await contentService.getAllContents();
-      setContents(data);
+      const response = await contentService.getAllContents();
+      setContents(response.data);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);

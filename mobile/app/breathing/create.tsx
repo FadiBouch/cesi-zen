@@ -11,7 +11,6 @@ import { Loading } from "../../components/common/Loading";
 import { Colors } from "../../utils/colors";
 import { useAuth } from "../../hooks/useAuth";
 import { Redirect } from "expo-router";
-
 export default function CreateExerciseScreen() {
   const { isAuthenticated } = useAuth();
   const {

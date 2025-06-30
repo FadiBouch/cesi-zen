@@ -2,14 +2,40 @@ import React, { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, Animated, Dimensions } from "react-native";
 import { Button } from "../common/Button";
 import { BreathingExerciseConfiguration } from "../../types/breathing";
+
+// Interface pour s'assurer de la compatibilité avec votre structure
+interface BreathingConfig {
+  id: number;
+  name: string;
+  inhaleTime: number;
+  holdInhaleTime: number;
+  exhaleTime: number;
+  holdExhaleTime: number;
+  cycles: number;
+  description: string;
+  isPublic: boolean;
+  createdAt: string;
+  updatedAt: string;
+  typeId: number;
+  userId: number | null;
+  type: {
+    id: number;
+    name: string;
+    description: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+  user: any | null;
+}
 import { Colors } from "../../utils/colors";
 
 interface BreathingAnimationViewProps {
-  exercise: BreathingExerciseConfiguration;
+  exercise: BreathingExerciseConfiguration | BreathingConfig;
   onComplete?: () => void;
 }
 
 enum BreathState {
+  READY = "Prêt à commencer",
   INHALE = "Inspirez",
   HOLD_INHALE = "Retenez",
   EXHALE = "Expirez",
@@ -28,13 +54,15 @@ export const BreathingAnimationView: React.FC<BreathingAnimationViewProps> = ({
   const [started, setStarted] = useState(false);
   const [currentCycle, setCurrentCycle] = useState(1);
   const [breathState, setBreathState] = useState<BreathState>(
-    BreathState.INHALE
+    BreathState.READY
   );
   const [timeLeft, setTimeLeft] = useState(0);
   const [totalTimeElapsed, setTotalTimeElapsed] = useState(0);
 
   const animatedSize = useRef(new Animated.Value(MIN_CIRCLE_SIZE)).current;
   const fadeInstructions = useRef(new Animated.Value(1)).current;
+  const timerRef = useRef<number | null>(null);
+  const animationRef = useRef<Animated.CompositeAnimation | null>(null);
 
   const totalCycleDuration =
     exercise.inhaleTime +
@@ -44,143 +72,117 @@ export const BreathingAnimationView: React.FC<BreathingAnimationViewProps> = ({
 
   const totalDuration = totalCycleDuration * exercise.cycles;
 
-  useEffect(() => {
-    if (!started) return;
+  // Fonction pour nettoyer les timers et animations
+  const cleanup = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    if (animationRef.current) {
+      animationRef.current.stop();
+      animationRef.current = null;
+    }
+  };
 
-    let timer: NodeJS.Timeout;
+  // Fonction pour exécuter une phase de respiration
+  const executePhase = (
+    state: BreathState,
+    duration: number,
+    animationConfig?: { toValue: number }
+  ): Promise<void> => {
+    return new Promise((resolve) => {
+      setBreathState(state);
+      setTimeLeft(duration);
 
-    const startBreathingCycle = () => {
-      // Inhale phase
-      setBreathState(BreathState.INHALE);
-      setTimeLeft(exercise.inhaleTime);
+      let remainingTime = duration;
+      timerRef.current = setInterval(() => {
+        remainingTime--;
+        setTimeLeft(remainingTime);
+        setTotalTimeElapsed((prev) => prev + 1);
 
-      Animated.sequence([
-        // Inhale Animation - Circle grows
-        Animated.timing(animatedSize, {
-          toValue: MAX_CIRCLE_SIZE,
-          duration: exercise.inhaleTime * 1000,
-          useNativeDriver: false,
-        }),
-
-        // Hold after inhale
-        ...(exercise.holdInhaleTime > 0
-          ? [
-              Animated.timing(fadeInstructions, {
-                toValue: 0,
-                duration: 200,
-                useNativeDriver: false,
-              }),
-              Animated.timing(fadeInstructions, {
-                toValue: 1,
-                duration: 200,
-                useNativeDriver: false,
-              }),
-            ]
-          : []),
-
-        // Exhale Animation - Circle shrinks
-        Animated.timing(animatedSize, {
-          toValue: MIN_CIRCLE_SIZE,
-          duration: exercise.exhaleTime * 1000,
-          useNativeDriver: false,
-        }),
-
-        // Hold after exhale
-        ...(exercise.holdExhaleTime > 0
-          ? [
-              Animated.timing(fadeInstructions, {
-                toValue: 0,
-                duration: 200,
-                useNativeDriver: false,
-              }),
-              Animated.timing(fadeInstructions, {
-                toValue: 1,
-                duration: 200,
-                useNativeDriver: false,
-              }),
-            ]
-          : []),
-      ]).start();
-
-      let timer = setInterval(() => {
-        setTotalTimeElapsed((prev) => {
-          const newTotal = prev + 1;
-
-          // Check if we've reached the end of the entire exercise
-          if (newTotal >= totalDuration) {
-            clearInterval(timer);
-            setBreathState(BreathState.COMPLETE);
-            if (onComplete) onComplete();
-            return totalDuration;
+        if (remainingTime <= 0) {
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
           }
-
-          // Calculate current position in the cycle
-          const positionInCurrentCycle = newTotal % totalCycleDuration;
-
-          // Update cycle number
-          const newCycle = Math.floor(newTotal / totalCycleDuration) + 1;
-          if (newCycle !== currentCycle) {
-            setCurrentCycle(newCycle);
-          }
-
-          // Determine breath state and remaining time
-          if (positionInCurrentCycle < exercise.inhaleTime) {
-            // Inhale phase
-            setBreathState(BreathState.INHALE);
-            setTimeLeft(exercise.inhaleTime - positionInCurrentCycle);
-          } else if (
-            positionInCurrentCycle <
-            exercise.inhaleTime + exercise.holdInhaleTime
-          ) {
-            // Hold after inhale
-            setBreathState(BreathState.HOLD_INHALE);
-            setTimeLeft(
-              exercise.inhaleTime +
-                exercise.holdInhaleTime -
-                positionInCurrentCycle
-            );
-          } else if (
-            positionInCurrentCycle <
-            exercise.inhaleTime + exercise.holdInhaleTime + exercise.exhaleTime
-          ) {
-            // Exhale phase
-            setBreathState(BreathState.EXHALE);
-            setTimeLeft(
-              exercise.inhaleTime +
-                exercise.holdInhaleTime +
-                exercise.exhaleTime -
-                positionInCurrentCycle
-            );
-          } else {
-            // Hold after exhale
-            setBreathState(BreathState.HOLD_EXHALE);
-            setTimeLeft(totalCycleDuration - positionInCurrentCycle);
-          }
-
-          return newTotal;
-        });
+          resolve();
+        }
       }, 1000);
-    };
 
-    startBreathingCycle();
+      // Animation si spécifiée
+      if (animationConfig) {
+        animationRef.current = Animated.timing(animatedSize, {
+          toValue: animationConfig.toValue,
+          duration: duration * 1000,
+          useNativeDriver: false,
+        });
+        animationRef.current.start();
+      }
+    });
+  };
 
-    // return () => {
-    //   if (timer) clearInterval(timer);
-    // };
-  }, [started, exercise]);
+  // Fonction pour exécuter un cycle complet
+  const executeCycle = async (): Promise<void> => {
+    // Phase d'inspiration
+    await executePhase(BreathState.INHALE, exercise.inhaleTime, {
+      toValue: MAX_CIRCLE_SIZE,
+    });
+
+    // Phase de rétention après inspiration (si > 0)
+    if (exercise.holdInhaleTime > 0) {
+      await executePhase(BreathState.HOLD_INHALE, exercise.holdInhaleTime);
+    }
+
+    // Phase d'expiration
+    await executePhase(BreathState.EXHALE, exercise.exhaleTime, {
+      toValue: MIN_CIRCLE_SIZE,
+    });
+
+    // Phase de pause après expiration (si > 0)
+    if (exercise.holdExhaleTime > 0) {
+      await executePhase(BreathState.HOLD_EXHALE, exercise.holdExhaleTime);
+    }
+  };
+
+  // Fonction principale pour lancer l'exercice
+  const startExercise = async () => {
+    try {
+      for (let cycle = 1; cycle <= exercise.cycles; cycle++) {
+        setCurrentCycle(cycle);
+        await executeCycle();
+      }
+
+      // Exercice terminé
+      setBreathState(BreathState.COMPLETE);
+      if (onComplete) onComplete();
+    } catch (error) {
+      console.log("Exercise interrupted");
+    }
+  };
+
+  useEffect(() => {
+    if (started) {
+      startExercise();
+    }
+
+    return cleanup;
+  }, [started]); // Seulement quand started change
 
   const handleStart = () => {
     setStarted(true);
     setTotalTimeElapsed(0);
     setCurrentCycle(1);
+    setBreathState(BreathState.INHALE);
     animatedSize.setValue(MIN_CIRCLE_SIZE);
   };
 
   const handleReset = () => {
+    cleanup();
     setStarted(false);
     setTotalTimeElapsed(0);
     setCurrentCycle(1);
-    setBreathState(BreathState.INHALE);
+    setBreathState(BreathState.READY);
+    setTimeLeft(0);
     animatedSize.setValue(MIN_CIRCLE_SIZE);
   };
 
@@ -213,7 +215,12 @@ export const BreathingAnimationView: React.FC<BreathingAnimationViewProps> = ({
           style={[styles.instructionContainer, { opacity: fadeInstructions }]}
         >
           <Text style={styles.instructionText}>{breathState}</Text>
-          {timeLeft > 0 && <Text style={styles.timerText}>{timeLeft}</Text>}
+          {timeLeft > 0 &&
+            started &&
+            breathState !== BreathState.COMPLETE &&
+            breathState !== BreathState.READY && (
+              <Text style={styles.timerText}>{timeLeft}</Text>
+            )}
         </Animated.View>
       </View>
 
@@ -225,7 +232,7 @@ export const BreathingAnimationView: React.FC<BreathingAnimationViewProps> = ({
         </View>
         <Text style={styles.progressText}>
           {Math.floor(totalTimeElapsed / 60)}:
-          {(totalTimeElapsed % 60).toString().padStart(2, "0")} /
+          {(totalTimeElapsed % 60).toString().padStart(2, "0")} /{" "}
           {Math.floor(totalDuration / 60)}:
           {(totalDuration % 60).toString().padStart(2, "0")}
         </Text>
@@ -249,7 +256,6 @@ export const BreathingAnimationView: React.FC<BreathingAnimationViewProps> = ({
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -1,7 +1,7 @@
 // types/auth.ts - modifié pour s'adapter à la connexion par username
 export interface User {
   id: number;
-  username: string;
+  userName: string;
   email: string;
   firstName: string | null;
   lastName: string | null;

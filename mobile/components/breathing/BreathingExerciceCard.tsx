@@ -21,7 +21,7 @@ export const BreathingExerciseCard: React.FC<BreathingExerciseCardProps> = ({
   }`;
 
   return (
-    <Link href={`/exercise/${exercise.id}` as Href} asChild>
+    <Link href={`/breathing/${exercise.id}` as Href} asChild>
       <TouchableOpacity activeOpacity={0.7}>
         <Card>
           <View style={styles.header}>

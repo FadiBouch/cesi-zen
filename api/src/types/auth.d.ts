@@ -14,11 +14,11 @@ export interface AuthRequest extends Request {
 }
 
 export interface RegisterData {
-  username: string;
+  userName: string;
   email: string;
   password: string;
-  firstname?: string;
-  lastname?: string;
+  firstName?: string;
+  lastName?: string;
   role?: string;
 }
 

@@ -49,6 +49,7 @@ class UserController {
       where: {
         id: id,
       },
+      include: { role: true },
     });
   }
 

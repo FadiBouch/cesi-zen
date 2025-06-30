@@ -25,7 +25,7 @@ export const ContentCard: React.FC<ContentCardProps> = ({ content }) => {
   return (
     <TouchableOpacity
       activeOpacity={0.7}
-      onPress={() => router.push(`/contents/${content.slug}` as Href)}
+      onPress={() => router.push(`/contents/article/${content.slug}` as Href)}
     >
       <Card>
         <View style={styles.categoryBadge}>

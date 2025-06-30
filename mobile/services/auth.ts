@@ -27,7 +27,17 @@ export const register = async (data: RegisterData): Promise<AuthResponse> => {
     body: JSON.stringify(data),
   });
 
-  await AsyncStorage.setItem("auth_token", response.token);
+  console.log("response : ", response.headers);
+  console.log("JSON.stringifty(response)", JSON.stringify(response.headers));
+
+  const loginBody = { username: data.username, password: data.password };
+
+  const loginResponse = await fetchWithToken("/auth/login", {
+    method: "POST",
+    body: JSON.stringify(loginBody),
+  });
+
+  await AsyncStorage.setItem("auth_token", loginResponse.token);
   return response;
 };
 
@@ -36,8 +46,28 @@ export const logout = async (): Promise<void> => {
 };
 
 export const checkAuth = async (): Promise<boolean> => {
-  const token = await AsyncStorage.getItem("auth_token");
-  return !!token;
+  try {
+    const token = await AsyncStorage.getItem("auth_token");
+
+    if (!token) {
+      console.log("No token found");
+      return false;
+    }
+    await fetchWithToken("/auth/profile");
+
+    console.log("Token is valid");
+    return true;
+  } catch (error: any) {
+    console.log("Token validation failed:", error);
+
+    // Si le token est invalide (403 ou autre erreur d'auth), on le supprime
+    if (error.status === 403 || error.status === 401) {
+      await AsyncStorage.removeItem("auth_token");
+      console.log("Invalid token removed from storage");
+    }
+
+    return false;
+  }
 };
 
 export const getCurrentUser = async () => {

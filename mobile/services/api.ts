@@ -20,9 +20,9 @@ export const fetchWithToken = async (
     headers,
   };
 
-  console.log(
-    `calling ${API_URL}${endpoint}\nconfig : ${JSON.stringify(config)}`
-  );
+  // console.log(
+  //   `calling ${API_URL}${endpoint}\nconfig : ${JSON.stringify(config)}`
+  // );
 
   const response = await fetch(`${API_URL}${endpoint}`, config);
 

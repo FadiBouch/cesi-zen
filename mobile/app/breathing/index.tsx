@@ -48,13 +48,19 @@ export default function BreathingExercisesScreen() {
   };
 
   const filteredExercises = (() => {
+    if (!publicExercises || !Array.isArray(publicExercises)) {
+      return [];
+    }
+
     const sourceExercises = publicExercises;
+
     if (selectedTypeId) {
       return sourceExercises.filter(
         (exercise: BreathingExerciseConfiguration) =>
           exercise.typeId === selectedTypeId
       );
     }
+
     return sourceExercises;
   })();
 
@@ -151,7 +157,7 @@ export default function BreathingExercisesScreen() {
 
         {isAuthenticated && (
           <View style={styles.actionContainer}>
-            <Link href={"/breathing-configs/create" as Href} asChild>
+            <Link href={"/breathing/create" as Href} asChild>
               <Button title="Créer un exercice" onPress={() => {}} />
             </Link>
           </View>

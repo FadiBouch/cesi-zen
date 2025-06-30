@@ -15,7 +15,6 @@ import { useAuth } from "../../hooks/useAuth";
 import { Colors } from "../../utils/colors";
 
 export default function RegisterScreen() {
-  const router = useRouter();
   const { register, error } = useAuth();
   const [formData, setFormData] = useState({
     username: "",
@@ -71,13 +70,16 @@ export default function RegisterScreen() {
 
     setIsSubmitting(true);
     try {
-      await register({
+      const resp = await register({
         username: formData.username,
         email: formData.email,
         password: formData.password,
         firstName: formData.firstName || undefined,
         lastName: formData.lastName || undefined,
       });
+
+      console.log(resp);
+      console.log(JSON.stringify(resp));
     } catch (err) {
       // Error is handled by the useAuth hook
     } finally {

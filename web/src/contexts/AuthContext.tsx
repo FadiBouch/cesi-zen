@@ -14,9 +14,14 @@ interface User {
   id: number;
   username: string;
   email: string;
-  role: string;
+  role: Role;
   firstName?: string;
   lastName?: string;
+  roleId: number;
+}
+interface Role {
+  id: number;
+  name: string;
 }
 
 interface AuthContextType {
@@ -49,6 +54,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Configurer l'intercepteur Axios une seule fois
   useEffect(() => {
+    try {
+      localStorage.setItem("test", "value");
+      const test = localStorage.getItem("test");
+      localStorage.removeItem("test");
+      console.log("📦 localStorage fonctionne:", test === "value");
+    } catch (error) {
+      console.error("❌ Problème avec localStorage:", error);
+    }
+
     // Ajouter un intercepteur pour inclure le token dans toutes les requêtes
     const interceptor = api.interceptors.request.use(
       (config) => {
@@ -70,6 +84,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Fonction pour rafraîchir l'état d'authentification
   const refreshAuthState = useCallback(async () => {
     setIsLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     try {
       const token = localStorage.getItem("token");
@@ -81,25 +96,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return;
       }
 
-      // Vérifier la validité du token
       try {
         const decoded: any = jwtDecode(token);
         const currentTime = Date.now() / 1000;
 
         if (decoded.exp && decoded.exp < currentTime) {
-          // Token expiré, déconnexion
           localStorage.removeItem("token");
           setIsAuthenticated(false);
           setUser(null);
           return;
         }
 
-        // Token valide, récupérer le profil
         const response = await api.get("/auth/profile");
+        console.log("ROLE : ", response.data);
 
-        // Vérifier si l'utilisateur est un admin
-        if (response.data.role !== "Admin") {
-          // Pas un admin, déconnexion
+        if (response.data.role.name !== "Admin") {
           logout();
           return;
         }
@@ -171,6 +182,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
+    console.log("🚪 LOGOUT appelé");
+    console.log("🗑️ Suppression token du localStorage");
     localStorage.removeItem("token");
     setIsAuthenticated(false);
     setUser(null);

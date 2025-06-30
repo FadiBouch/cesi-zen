@@ -1,4 +1,4 @@
-// app/index.tsx
+// app/index.tsx - Updated with profile access
 import React, { useState } from "react";
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { Href, Link, Stack } from "expo-router";
@@ -17,7 +17,7 @@ export default function HomePage() {
     await logout();
     setLoggingOut(false);
   };
-
+  console.log(user);
   return (
     <SafeAreaView style={styles.container}>
       <Stack.Screen
@@ -25,9 +25,26 @@ export default function HomePage() {
           title: "Accueil",
           headerRight: () =>
             isAuthenticated ? (
-              <TouchableOpacity onPress={handleLogout} disabled={loggingOut}>
-                <Text style={styles.logoutText}>Déconnexion</Text>
-              </TouchableOpacity>
+              <View style={styles.headerButtons}>
+                <Link href={"/profile" as Href} asChild>
+                  <TouchableOpacity style={styles.headerButton}>
+                    <FontAwesome5
+                      name="user"
+                      size={16}
+                      color={Colors.primary}
+                    />
+                  </TouchableOpacity>
+                </Link>
+                <TouchableOpacity
+                  onPress={handleLogout}
+                  disabled={loggingOut}
+                  style={styles.headerButton}
+                >
+                  <Text style={styles.logoutText}>
+                    {loggingOut ? "..." : "Déconnexion"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             ) : (
               <Link href={"/login" as Href} asChild>
                 <TouchableOpacity>
@@ -42,7 +59,7 @@ export default function HomePage() {
         <View style={styles.welcomeSection}>
           <Text style={styles.welcomeTitle}>
             {isAuthenticated
-              ? `Bienvenue, ${user?.username || "utilisateur"} !`
+              ? `Bienvenue, ${user?.userName || "utilisateur"} !`
               : "Bienvenue dans notre application de respiration"}
           </Text>
           <Text style={styles.welcomeText}>
@@ -69,47 +86,77 @@ export default function HomePage() {
             </TouchableOpacity>
           </Link>
 
-          <Link href={"/breathing" as Href} asChild>
-            <TouchableOpacity style={styles.menuItem}>
-              <View
-                style={[styles.menuIcon, { backgroundColor: Colors.secondary }]}
-              >
-                <FontAwesome5 name="lungs" size={24} color="white" />
-              </View>
-              <View style={styles.menuContent}>
-                <Text style={styles.menuTitle}>Exercices de Respiration</Text>
-                <Text style={styles.menuDescription}>
-                  Accédez à notre bibliothèque d'exercices de respiration pour
-                  vous détendre et vous recentrer.
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </Link>
-
           {isAuthenticated && (
-            <Link href={"/breathing/create" as Href} asChild>
-              <TouchableOpacity style={styles.menuItem}>
-                <View
-                  style={[styles.menuIcon, { backgroundColor: Colors.accent }]}
-                >
-                  <FontAwesome5 name="plus" size={24} color="white" />
-                </View>
-                <View style={styles.menuContent}>
-                  <Text style={styles.menuTitle}>Créer un Exercice</Text>
-                  <Text style={styles.menuDescription}>
-                    Créez et personnalisez vos propres exercices de respiration
-                    adaptés à vos besoins.
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </Link>
+            <>
+              <Link href={"/breathing" as Href} asChild>
+                <TouchableOpacity style={styles.menuItem}>
+                  <View
+                    style={[
+                      styles.menuIcon,
+                      { backgroundColor: Colors.secondary },
+                    ]}
+                  >
+                    <FontAwesome5 name="lungs" size={24} color="white" />
+                  </View>
+                  <View style={styles.menuContent}>
+                    <Text style={styles.menuTitle}>
+                      Exercices de Respiration
+                    </Text>
+                    <Text style={styles.menuDescription}>
+                      Accédez à notre bibliothèque d'exercices de respiration
+                      pour vous détendre et vous recentrer.
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </Link>
+              <Link href={"/breathing/create" as Href} asChild>
+                <TouchableOpacity style={styles.menuItem}>
+                  <View
+                    style={[
+                      styles.menuIcon,
+                      { backgroundColor: Colors.accent },
+                    ]}
+                  >
+                    <FontAwesome5 name="plus" size={24} color="white" />
+                  </View>
+                  <View style={styles.menuContent}>
+                    <Text style={styles.menuTitle}>Créer un Exercice</Text>
+                    <Text style={styles.menuDescription}>
+                      Créez et personnalisez vos propres exercices de
+                      respiration adaptés à vos besoins.
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </Link>
+
+              <Link href={"/profile" as Href} asChild>
+                <TouchableOpacity style={styles.menuItem}>
+                  <View
+                    style={[
+                      styles.menuIcon,
+                      { backgroundColor: Colors.primary },
+                    ]}
+                  >
+                    <FontAwesome5 name="user-cog" size={24} color="white" />
+                  </View>
+                  <View style={styles.menuContent}>
+                    <Text style={styles.menuTitle}>Mon Profil</Text>
+                    <Text style={styles.menuDescription}>
+                      Gérez vos paramètres, consultez vos statistiques et
+                      personnalisez votre expérience.
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </Link>
+            </>
           )}
         </View>
 
         {!isAuthenticated && (
           <View style={styles.actionSection}>
             <Text style={styles.actionText}>
-              Connectez-vous pour créer vos propres exercices de respiration
+              Connectez-vous pour créer vos propres exercices de respiration et
+              accéder à votre profil personnalisé
             </Text>
             <Link href={"/login" as Href} asChild>
               <Button title="Se connecter" onPress={() => {}} />
@@ -194,6 +241,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     textAlign: "center",
   },
+  headerButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  headerButton: {
+    marginLeft: 12,
+    padding: 8,
+  },
   loginText: {
     color: Colors.primary,
     fontWeight: "600",
@@ -204,6 +259,5 @@ const styles = StyleSheet.create({
     color: Colors.error,
     fontWeight: "600",
     fontSize: 16,
-    padding: 8,
   },
 });

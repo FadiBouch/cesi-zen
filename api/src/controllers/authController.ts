@@ -15,15 +15,15 @@ import { log } from "console";
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const {
-      username,
+      userName,
       password,
       email,
-      firstname,
-      lastname,
+      firstName,
+      lastName,
       role = "User",
     } = req.body as RegisterData;
 
-    const exists = await UserController.exists(username, email);
+    const exists = await UserController.exists(userName, email);
     if (exists) {
       res.status(400).json({
         message: "Cet utilisateur ou cette adresse email existe déjà.",
@@ -43,11 +43,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     }
 
     const newUser = await UserController.create({
-      username,
+      userName,
       email,
       password,
-      firstname,
-      lastname,
+      firstName,
+      lastName,
       role,
     });
 
@@ -71,10 +71,10 @@ export const createAdmin = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { username, password, email, firstname, lastname } =
+    const { userName, password, email, firstName, lastName } =
       req.body as RegisterData;
 
-    const exists = await UserController.exists(username, email);
+    const exists = await UserController.exists(userName, email);
     if (exists) {
       res.status(400).json({
         message: "Cet utilisateur ou cette adresse email existe déjà.",
@@ -82,11 +82,11 @@ export const createAdmin = async (
       return;
     }
     const newUser = await UserController.create({
-      username,
+      userName,
       email,
       password,
-      firstname,
-      lastname,
+      firstName,
+      lastName,
       role: "Admin",
     });
 

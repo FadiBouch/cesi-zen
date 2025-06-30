@@ -22,7 +22,7 @@ export const useBreathingExercises = (publicOnly: boolean = false) => {
       } else {
         data = await breathingService.getAllBreathingExercises();
       }
-      setExercises(data);
+      setExercises(data.data);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -110,8 +110,10 @@ export const useBreathingExerciseTypes = () => {
   const fetchTypes = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await breathingService.getAllBreathingExerciseTypes();
-      setTypes(data);
+      const resp = await breathingService.getAllBreathingExerciseTypes();
+
+      console.log("data : ", JSON.stringify(resp.data));
+      setTypes(resp.data);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);

@@ -39,8 +39,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setLoading(true);
     try {
       const isAuthenticated = await authService.checkAuth();
+
       if (isAuthenticated) {
         const userData = await authService.getCurrentUser();
+        console.log("AuthProvider.userData :", userData);
+
         setUser(userData);
       } else {
         setUser(null);
@@ -59,11 +62,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuthStatus();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await authService.login({ email, password });
+      const response = await authService.login({ username, password });
       setUser(response.user);
       return response;
     } catch (err) {

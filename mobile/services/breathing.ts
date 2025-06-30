@@ -5,33 +5,25 @@ import {
   CreateBreathingExerciseData,
 } from "../types/breathing";
 
-export const getAllBreathingExercises = async (): Promise<
-  BreathingExerciseConfiguration[]
-> => {
+export const getAllBreathingExercises = async () => {
   return fetchWithToken("/breathing-configs");
 };
 
-export const getPublicBreathingExercises = async (): Promise<
-  BreathingExerciseConfiguration[]
-> => {
+export const getPublicBreathingExercises = async () => {
   return fetchWithToken("/breathing-configs");
 };
 
-export const getUserBreathingExercises = async (): Promise<
-  BreathingExerciseConfiguration[]
-> => {
+export const getUserBreathingExercises = async () => {
   return fetchWithToken("/breathing-configs/user");
 };
 
-export const getBreathingExerciseById = async (
-  id: number
-): Promise<BreathingExerciseConfiguration> => {
+export const getBreathingExerciseById = async (id: number) => {
   return fetchWithToken(`/breathing-configs/${id}`);
 };
 
 export const createBreathingExercise = async (
   data: CreateBreathingExerciseData
-): Promise<BreathingExerciseConfiguration> => {
+) => {
   return fetchWithToken("/breathing-configs", {
     method: "POST",
     body: JSON.stringify(data),
@@ -41,21 +33,19 @@ export const createBreathingExercise = async (
 export const updateBreathingExercise = async (
   id: number,
   data: Partial<CreateBreathingExerciseData>
-): Promise<BreathingExerciseConfiguration> => {
+) => {
   return fetchWithToken(`/breathing-configs/${id}`, {
     method: "PUT",
     body: JSON.stringify(data),
   });
 };
 
-export const deleteBreathingExercise = async (id: number): Promise<void> => {
+export const deleteBreathingExercise = async (id: number) => {
   return fetchWithToken(`/breathing-configs/${id}`, {
     method: "DELETE",
   });
 };
 
-export const getAllBreathingExerciseTypes = async (): Promise<
-  BreathingExerciseType[]
-> => {
+export const getAllBreathingExerciseTypes = async () => {
   return fetchWithToken("/breathing-types");
 };

@@ -1,4 +1,3 @@
-// hooks/useAuth.ts - modifié pour utiliser le username
 import { useState, useEffect, useCallback } from "react";
 import { User } from "../types/auth";
 import * as authService from "../services/auth";
