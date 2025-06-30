@@ -19,9 +19,9 @@ class UserController {
     return prisma.user.create({
       data: {
         email: userData.email,
-        userName: userData.username,
-        firstName: userData.firstname || null,
-        lastName: userData.lastname || null,
+        userName: userData.userName,
+        firstName: userData.firstName || null,
+        lastName: userData.lastName || null,
         password: hashedPassword,
         roleId: role.id,
       },
@@ -33,6 +33,7 @@ class UserController {
       where: {
         userName: username,
       },
+      include: { role: true },
     });
   }
 
@@ -41,6 +42,7 @@ class UserController {
       where: {
         email: email,
       },
+      include: { role: true },
     });
   }
 

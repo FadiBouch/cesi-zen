@@ -6,32 +6,17 @@ import {
   StyleSheet,
   Dimensions,
   Animated,
+  ActivityIndicator,
 } from "react-native";
 import { Play, Pause, RotateCcw, Info } from "lucide-react-native";
+import { Stack, useLocalSearchParams } from "expo-router";
+import { useBreathingExerciseById } from "@/hooks/useBreathing";
 
 const { width } = Dimensions.get("window");
 
 const BreathingExerciseApp = () => {
-  // Données d'exemple basées sur l'API
-  const exerciseData = {
-    id: 3,
-    name: "4-7-8 classique",
-    inhaleTime: 4,
-    holdInhaleTime: 7,
-    exhaleTime: 8,
-    holdExhaleTime: 0,
-    cycles: 5,
-    description:
-      "Technique originale du Dr. Andrew Weil. Parfaite avant de dormir ou lors de moments d'anxiété.",
-    isPublic: true,
-    type: {
-      id: 2,
-      name: "Respiration 4-7-8",
-      description:
-        "Méthode développée par Dr. Andrew Weil, consistant à inspirer pendant 4 secondes, retenir son souffle pendant 7 secondes, puis expirer pendant 8 secondes. Excellent pour réduire l'anxiété et favoriser l'endormissement.",
-    },
-  };
-
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { exercise, loading, error } = useBreathingExerciseById(parseInt(id));
   const [isActive, setIsActive] = useState(false);
   const [currentPhase, setCurrentPhase] = useState("ready");
   const [currentCycle, setCurrentCycle] = useState(0);
@@ -39,33 +24,6 @@ const BreathingExerciseApp = () => {
   const [showInfo, setShowInfo] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const scaleAnim = useRef(new Animated.Value(1)).current;
-
-  const phases = [
-    {
-      name: "inhale",
-      duration: exerciseData.inhaleTime,
-      label: "Inspirez",
-      color: "#3B82F6",
-    },
-    {
-      name: "holdInhale",
-      duration: exerciseData.holdInhaleTime,
-      label: "Retenez",
-      color: "#EAB308",
-    },
-    {
-      name: "exhale",
-      duration: exerciseData.exhaleTime,
-      label: "Expirez",
-      color: "#10B981",
-    },
-    {
-      name: "holdExhale",
-      duration: exerciseData.holdExhaleTime,
-      label: "Pause",
-      color: "#6B7280",
-    },
-  ].filter((phase) => phase.duration > 0);
 
   const getCurrentPhaseIndex = () => {
     return phases.findIndex((phase) => phase.name === currentPhase);
@@ -156,6 +114,51 @@ const BreathingExerciseApp = () => {
     };
   }, [isActive, timeRemaining, currentPhase, currentCycle]);
 
+  if (error || !exercise) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <Text style={styles.errorText}>{error || "Exercice non trouvé"}</Text>
+      </View>
+    );
+  }
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color="#3B82F6" />
+        <Text style={styles.loadingText}>Chargement de l'exercice...</Text>
+      </View>
+    );
+  }
+
+  const exerciseData = exercise;
+
+  const phases = [
+    {
+      name: "inhale",
+      duration: exerciseData.inhaleTime,
+      label: "Inspirez",
+      color: "#3B82F6",
+    },
+    {
+      name: "holdInhale",
+      duration: exerciseData.holdInhaleTime,
+      label: "Retenez",
+      color: "#EAB308",
+    },
+    {
+      name: "exhale",
+      duration: exerciseData.exhaleTime,
+      label: "Expirez",
+      color: "#10B981",
+    },
+    {
+      name: "holdExhale",
+      duration: exerciseData.holdExhaleTime,
+      label: "Pause",
+      color: "#6B7280",
+    },
+  ].filter((phase) => phase.duration > 0);
+
   const getCurrentPhaseData = () => {
     return (
       phases.find((phase) => phase.name === currentPhase) || {
@@ -176,12 +179,20 @@ const BreathingExerciseApp = () => {
 
   return (
     <View style={styles.container}>
+      {/* Configuration du titre de la page */}
+      <Stack.Screen
+        options={{
+          title: exerciseData.name,
+          headerBackTitle: "Retour",
+        }}
+      />
+
       <View style={styles.content}>
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.title}>{exerciseData.name}</Text>
-            <Text style={styles.subtitle}>{exerciseData.type.name}</Text>
+            <Text style={styles.subtitle}>
+              Catégorie : {exerciseData.type.name}
+            </Text>
           </View>
           <TouchableOpacity
             style={styles.infoButton}
@@ -193,36 +204,52 @@ const BreathingExerciseApp = () => {
 
         {/* Info Panel */}
         {showInfo && (
-          <View style={styles.infoPanel}>
-            <Text style={styles.infoTitle}>Description</Text>
-            <Text style={styles.infoDescription}>
-              {exerciseData.description}
-            </Text>
-            <View style={styles.infoGrid}>
-              <View style={[styles.infoItem, styles.inhaleInfo]}>
-                <Text style={styles.infoLabel}>
-                  Inspiration: {exerciseData.inhaleTime}s
-                </Text>
-              </View>
-              {exerciseData.holdInhaleTime > 0 && (
-                <View style={[styles.infoItem, styles.holdInfo]}>
-                  <Text style={styles.infoLabel}>
-                    Rétention: {exerciseData.holdInhaleTime}s
-                  </Text>
+          <TouchableOpacity
+            style={styles.tooltipOverlay}
+            activeOpacity={1}
+            onPress={() => setShowInfo(false)}
+          >
+            <View style={styles.tooltipContainer}>
+              <View style={styles.infoTooltip}>
+                <View style={styles.tooltipHeader}>
+                  <Text style={styles.infoTitle}>Description</Text>
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={() => setShowInfo(false)}
+                  >
+                    <Text style={styles.closeButtonText}>×</Text>
+                  </TouchableOpacity>
                 </View>
-              )}
-              <View style={[styles.infoItem, styles.exhaleInfo]}>
-                <Text style={styles.infoLabel}>
-                  Expiration: {exerciseData.exhaleTime}s
+                <Text style={styles.infoDescription}>
+                  {exerciseData.description}
                 </Text>
-              </View>
-              <View style={[styles.infoItem, styles.cyclesInfo]}>
-                <Text style={styles.infoLabel}>
-                  Cycles: {exerciseData.cycles}
-                </Text>
+                <View style={styles.infoGrid}>
+                  <View style={[styles.infoItem, styles.inhaleInfo]}>
+                    <Text style={styles.infoLabel}>
+                      Inspiration: {exerciseData.inhaleTime}s
+                    </Text>
+                  </View>
+                  {exerciseData.holdInhaleTime > 0 && (
+                    <View style={[styles.infoItem, styles.holdInfo]}>
+                      <Text style={styles.infoLabel}>
+                        Rétention: {exerciseData.holdInhaleTime}s
+                      </Text>
+                    </View>
+                  )}
+                  <View style={[styles.infoItem, styles.exhaleInfo]}>
+                    <Text style={styles.infoLabel}>
+                      Expiration: {exerciseData.exhaleTime}s
+                    </Text>
+                  </View>
+                  <View style={[styles.infoItem, styles.cyclesInfo]}>
+                    <Text style={styles.infoLabel}>
+                      Cycles: {exerciseData.cycles}
+                    </Text>
+                  </View>
+                </View>
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
         )}
 
         {/* Main Circle */}
@@ -331,6 +358,69 @@ const BreathingExerciseApp = () => {
 };
 
 const styles = StyleSheet.create({
+  closeButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: "#F3F4F6",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  closeButtonText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#6B7280",
+  },
+  tooltipOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    zIndex: 1000,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  tooltipContainer: {
+    width: "100%",
+    maxWidth: 350,
+  },
+  infoTooltip: {
+    backgroundColor: "white",
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 15,
+  },
+  tooltipHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: "#6B7280",
+    marginTop: 16,
+  },
+  errorText: {
+    fontSize: 16,
+    color: "#EF4444",
+    textAlign: "center",
+    paddingHorizontal: 32,
+  },
+  centerContent: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
   container: {
     flex: 1,
     backgroundColor: "#EFF6FF",
@@ -469,6 +559,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cycleText: {
+    marginTop: 20,
     fontSize: 18,
     fontWeight: "600",
     color: "#374151",
@@ -480,9 +571,11 @@ const styles = StyleSheet.create({
   },
   controls: {
     flexDirection: "row",
+    flexWrap: "wrap",
     justifyContent: "center",
-    gap: 16,
+    gap: 12,
     marginBottom: 32,
+    paddingHorizontal: 8,
   },
   startButton: {
     backgroundColor: "#3B82F6",

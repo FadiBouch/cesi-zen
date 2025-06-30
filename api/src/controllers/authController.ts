@@ -162,7 +162,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: role.name,
+        role: role,
       },
     });
   } catch (error) {

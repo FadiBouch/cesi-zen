@@ -38,9 +38,6 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
     return <Loading />;
   }
 
-  console.log("App.tsx: user : ", user);
-  console.log("App.tsx: user.role : ", user?.role);
-
   if (!isAuthenticated || user?.role.name !== "Admin") {
     return <Navigate to="/login" replace />;
   }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-hot-toast";
@@ -8,14 +8,19 @@ const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
-  React.useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/");
+  useEffect(() => {
+    console.log("isAuthenticated", isAuthenticated);
+    console.log("user", user);
+    console.log("user.role", user?.role);
+    console.log("user.role.name", user?.role.name);
+
+    if (isAuthenticated && user && user.role && user.role.name === "Admin") {
+      navigate("/", { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +35,6 @@ const Login: React.FC = () => {
     try {
       await login(username, password);
       toast.success("Connexion réussie");
-      navigate("/");
     } catch (error) {
       let errorMessage = "Échec de la connexion";
       if (error instanceof Error) {

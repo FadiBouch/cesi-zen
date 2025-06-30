@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       (config) => {
         const token = localStorage.getItem("token");
         if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
+          config.headers!!.Authorization = `Bearer ${token}`;
         }
         return config;
       },
@@ -81,7 +81,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, []);
 
-  // Fonction pour rafraîchir l'état d'authentification
   const refreshAuthState = useCallback(async () => {
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -159,7 +158,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
       const { token, user } = response.data;
 
-      if (user.role !== "Admin") {
+      if (user.role.name !== "Admin") {
         throw new Error(
           "Accès refusé. Seuls les administrateurs peuvent accéder au back-office."
         );

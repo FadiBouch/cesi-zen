@@ -21,7 +21,6 @@ import { useFocusEffect } from "@react-navigation/native";
 import { BreathingExerciseConfiguration } from "@/types/breathing";
 
 export default function BreathingExercisesScreen() {
-  const router = useRouter();
   const { isAuthenticated } = useAuth();
   const [showMyExercises, setShowMyExercises] = useState(false);
   const {
@@ -103,57 +102,64 @@ export default function BreathingExercisesScreen() {
           </View>
         )}
 
-        {loadingTypes ? (
-          <Loading message="Chargement des types d'exercices..." />
-        ) : (
-          <FlatList
-            horizontal
-            data={types}
-            keyExtractor={(item) => (item.id ? item.id.toString() : "all")}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={[
-                  styles.typeButton,
-                  selectedTypeId === item.id && styles.selectedTypeButton,
-                ]}
-                onPress={() => setSelectedTypeId(item.id)}
-              >
-                <Text
+        {/* Container avec hauteur fixe pour les types */}
+        <View style={styles.typesSection}>
+          {loadingTypes ? (
+            <Loading message="Chargement des types d'exercices..." />
+          ) : (
+            <FlatList
+              horizontal
+              data={types}
+              keyExtractor={(item) => (item.id ? item.id.toString() : "all")}
+              renderItem={({ item }) => (
+                <TouchableOpacity
                   style={[
-                    styles.typeButtonText,
-                    selectedTypeId === item.id && styles.selectedTypeButtonText,
+                    styles.typeButton,
+                    selectedTypeId === item.id && styles.selectedTypeButton,
                   ]}
+                  onPress={() => setSelectedTypeId(item.id)}
                 >
-                  {item.name}
-                </Text>
-              </TouchableOpacity>
-            )}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.typesContainer}
-          />
-        )}
+                  <Text
+                    style={[
+                      styles.typeButtonText,
+                      selectedTypeId === item.id &&
+                        styles.selectedTypeButtonText,
+                    ]}
+                  >
+                    {item.name}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.typesContainer}
+            />
+          )}
+        </View>
 
-        {error ? (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>
-              Une erreur est survenue : {error}
-            </Text>
-          </View>
-        ) : (
-          <BreathingExerciseList
-            exercises={filteredExercises}
-            loading={loading}
-            onRefresh={handleRefresh}
-            refreshing={refreshing}
-            emptyMessage={
-              showMyExercises
-                ? "Vous n'avez pas encore créé d'exercices de respiration"
-                : selectedTypeId
-                ? "Aucun exercice disponible pour ce type"
-                : "Aucun exercice de respiration disponible"
-            }
-          />
-        )}
+        {/* Container flexible pour la liste des exercices */}
+        <View style={styles.exercisesSection}>
+          {error ? (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>
+                Une erreur est survenue : {error}
+              </Text>
+            </View>
+          ) : (
+            <BreathingExerciseList
+              exercises={filteredExercises}
+              loading={loading}
+              onRefresh={handleRefresh}
+              refreshing={refreshing}
+              emptyMessage={
+                showMyExercises
+                  ? "Vous n'avez pas encore créé d'exercices de respiration"
+                  : selectedTypeId
+                  ? "Aucun exercice disponible pour ce type"
+                  : "Aucun exercice de respiration disponible"
+              }
+            />
+          )}
+        </View>
 
         {isAuthenticated && (
           <View style={styles.actionContainer}>
@@ -197,9 +203,15 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: Colors.primary,
   },
+  // Section avec hauteur fixe pour les types
+  typesSection: {
+    height: 60, // Hauteur fixe
+    justifyContent: "center",
+  },
   typesContainer: {
     paddingHorizontal: 16,
     paddingVertical: 12,
+    alignItems: "center", // Centre verticalement les boutons
   },
   typeButton: {
     paddingHorizontal: 16,
@@ -207,6 +219,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: Colors.backgroundLight,
     marginRight: 8,
+    // Hauteur fixe pour les boutons
+    height: 36,
+    justifyContent: "center",
+    alignItems: "center",
   },
   selectedTypeButton: {
     backgroundColor: Colors.primary,
@@ -218,6 +234,10 @@ const styles = StyleSheet.create({
   selectedTypeButtonText: {
     color: Colors.white,
     fontWeight: "600",
+  },
+  // Section flexible pour les exercices
+  exercisesSection: {
+    flex: 1, // Prend tout l'espace restant
   },
   errorContainer: {
     flex: 1,
