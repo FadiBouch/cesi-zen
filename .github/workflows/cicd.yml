@@ -52,13 +52,19 @@ jobs:
       #     docker build -t ghcr.io/${{ github.repository }}/next-devops:latest .
       #     docker push -t ghcr.io/${{ github.repository }}/next-devops:latest
 
-      - name: Build and push Docker image (Docker action)
+      - name: Build and push API Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .
-          target: next
+          context: ./api
           push: true
-          tags: ghcr.io/fadibouch/cours-devops/next-devops:${{ github.ref_name }}
+          tags: ghcr.io/fadibouch/cesi-zen-api:latest
+          
+      - name: Build and push WEB Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./web
+          push: true
+          tags: ghcr.io/fadibouch/cesi-zen-web:latest
 
   deploy-prod:
     needs: build-docker
