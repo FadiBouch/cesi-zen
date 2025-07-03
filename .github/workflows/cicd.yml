@@ -73,7 +73,7 @@ jobs:
       github.event_name == 'push' && 
       github.ref_name == 'main'
     needs: build-docker
-    uses: fadibouch/cesi-zen/.github/workflows/deploy.yml@main
+    uses: fadibouch/cesi-zen/.github/workflows/deploy.yml@develop
     with:
       env: prod
       branch: main
