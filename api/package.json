@@ -6,8 +6,26 @@
     "seed": "ts-node src/seed.ts"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "dev": "ts-node-dev --respawn --pretty --transpile-only src/index.ts"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "roots": ["<rootDir>/src"],
+    "testMatch": ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "!src/**/*.d.ts",
+      "!src/index.ts",
+      "!src/seed.ts"
+    ],
+    "setupFilesAfterEnv": ["<rootDir>/src/__tests__/setup.ts"]
   },
   "keywords": [],
   "author": "",

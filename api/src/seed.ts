@@ -30,7 +30,7 @@ async function main() {
       password: "1234",
       role: role.name,
     };
-    UserController.upsert(user);
+    await UserController.upsert(user);
   }
 
   //#region BreathingExerciseTypes

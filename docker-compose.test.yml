@@ -1,7 +1,7 @@
 services:
   db_test:
     image: postgres
-    restart: always
+    # restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
@@ -15,6 +15,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    # restart: always
     networks:
       - cesizen_test
 
@@ -30,12 +31,24 @@ services:
     networks:
       - cesizen_test
 
+  api_test_runner:
+    image: ghcr.io/fadibouch/cesi-zen-api:latest
+    environment:
+      DATABASE_URL: postgresql://postgres:1234@db_test:5432/cesi-zen?schema=public
+    command: npm test
+    depends_on:
+      db_test:
+        condition: service_healthy
+    networks:
+      - cesizen_test
+
   web_test:
     image: ghcr.io/fadibouch/cesi-zen-web:latest
     environment:
       - VITE_BASE_URL=http://44.212.98.79:3000
     ports:
-      - "80:5173"
+      - "8080:5173"
+    # restart: always
     networks:
       - cesizen_test
 
