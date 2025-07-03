@@ -5,7 +5,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: npm audit --audit-level=high
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Audit API dependencies
+        run: |
+          cd api
+          npm audit --audit-level=high
+      - name: Audit Web dependencies
+        run: |
+          cd web
+          npm audit --audit-level=high
+      - name: Audit Mobile dependencies
+        run: |
+          cd mobile
+          npm audit --audit-level=high
 
   build-docker:
     runs-on: ubuntu-latest
