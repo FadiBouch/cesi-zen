@@ -68,7 +68,7 @@ jobs:
 
   deploy-prod:
     needs: build-docker
-    uses: fadibouch/cesi-zen/.github/workflows/deploy.yml@main
+    uses: fadibouch/cesi-zen/.github/workflows/deploy.yml@${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
     with:
       env: prod
       branch: main
@@ -80,7 +80,7 @@ jobs:
 
   deploy-test:
     needs: build-docker
-    uses: fadibouch/cesi-zen/.github/workflows/deploy.yml@main
+    uses: fadibouch/cesi-zen/.github/workflows/deploy.yml@${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
     with:
       env: test
       branch: develop
