@@ -67,6 +67,7 @@ jobs:
           tags: ghcr.io/fadibouch/cesi-zen/cesi-zen-web:${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
 
   deploy-prod:
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref || github.ref_name }} == 'main'
     needs: build-docker
     uses: fadibouch/cesi-zen/.github/workflows/deploy.yml@main
     with:
@@ -79,6 +80,7 @@ jobs:
       SSH_KEY: ${{ secrets.SSH_KEY }}
 
   deploy-test:
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref || github.ref_name }} == 'develop'
     needs: build-docker
     uses: fadibouch/cesi-zen/.github/workflows/deploy.yml@develop
     with:
