@@ -34,15 +34,16 @@ jobs:
       - name: Setup SSH key
         run: | 
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          ssh-add ~/.ssh/id_rsa
 
       - name: Add SSH server to known_hosts
         run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
       - name: SCP docker-compose.${{ inputs.env }}.yml to server
         run: |
-          scp -i ~/.ssh/id_rsa docker-compose.${{ inputs.env }}.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/${{ inputs.env }}/.
+          scp docker-compose.${{ inputs.env }}.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/${{ inputs.env }}/.
 
 
       - name: Run Tests
