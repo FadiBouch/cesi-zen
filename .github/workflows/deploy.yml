@@ -42,7 +42,7 @@ jobs:
 
       - name: SCP docker-compose.${{ inputs.env }}.yml to server
         run: |
-          scp docker-compose.${{ inputs.env }}.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/${{ inputs.env }}/.
+          scp -i ~/.ssh/id_rsa docker-compose.${{ inputs.env }}.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/${{ inputs.env }}/.
 
 
       - name: Run Tests
