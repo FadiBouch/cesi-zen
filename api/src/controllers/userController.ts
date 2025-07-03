@@ -1,5 +1,5 @@
 // Modèle utilisateur avec Prisma
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { Role, User } from "@prisma/client";
 import prisma from "../utils/database";
 import { RegisterData, UpdateProfileData } from "../types/auth";
@@ -19,7 +19,32 @@ class UserController {
     return prisma.user.create({
       data: {
         email: userData.email,
-        userName: userData.userName,
+        userName: userData.username,
+        firstName: userData.firstName || null,
+        lastName: userData.lastName || null,
+        password: hashedPassword,
+        roleId: role.id,
+      },
+    });
+  }
+
+  public static async upsert(userData: RegisterData): Promise<User> {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(userData.password, salt);
+
+    const role = await prisma.role.findFirst({
+      where: { name: userData.role },
+    });
+    if (!role) throw new Error("Le rôle est introuvable.");
+
+    console.log(userData);
+
+    return prisma.user.upsert({
+      where: { userName: userData.username },
+      update: {},
+      create: {
+        email: userData.email,
+        userName: userData.username,
         firstName: userData.firstName || null,
         lastName: userData.lastName || null,
         password: hashedPassword,

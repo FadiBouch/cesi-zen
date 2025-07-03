@@ -2,12 +2,20 @@ import { Prisma, User } from "@prisma/client";
 import UserController from "./controllers/userController";
 import prisma from "./utils/database";
 import { RegisterData } from "./types/auth";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 async function main() {
   async function seedRoles() {
-    await prisma.role.createMany({
-      data: [{ name: "Admin" }, { name: "User" }],
+    await prisma.role.upsert({
+      where: { name: "Admin" },
+      update: {},
+      create: { name: "Admin" },
+    });
+
+    await prisma.role.upsert({
+      where: { name: "User" },
+      update: {},
+      create: { name: "User" },
     });
   }
 
@@ -22,7 +30,7 @@ async function main() {
       password: "1234",
       role: role.name,
     };
-    UserController.create(user);
+    UserController.upsert(user);
   }
 
   //#region BreathingExerciseTypes
@@ -323,110 +331,6 @@ async function main() {
     }
 
     console.log("Breathing exercise configurations seeded successfully!");
-  }
-  //#endregion
-
-  //#region BreathingExerciseSessions
-  // Données pour initialiser la table breathing_exercise_sessions
-  const breathingExerciseSessions = [
-    // Sessions complètes
-    {
-      id: 1,
-      startTime: new Date("2025-04-20T08:15:00Z"),
-      endTime: new Date("2025-04-20T08:20:00Z"), // 5 minutes de cohérence cardiaque
-      completedCycles: 30,
-      configurationId: 1, // Cohérence cardiaque standard
-    },
-    {
-      id: 2,
-      startTime: new Date("2025-04-20T22:45:00Z"),
-      endTime: new Date("2025-04-20T22:47:30Z"), // 2 min 30 sec
-      completedCycles: 5,
-      configurationId: 3, // 4-7-8 classique avant de dormir
-    },
-    {
-      id: 3,
-      startTime: new Date("2025-04-21T12:30:00Z"),
-      endTime: new Date("2025-04-21T12:36:00Z"), // 6 minutes
-      completedCycles: 15,
-      configurationId: 6, // Respiration abdominale profonde pendant la pause déjeuner
-    },
-    {
-      id: 4,
-      startTime: new Date("2025-04-21T18:20:00Z"),
-      endTime: new Date("2025-04-21T18:23:40Z"), // 3 min 40 sec
-      completedCycles: 10,
-      configurationId: 4, // Box Breathing standard
-    },
-    {
-      id: 5,
-      startTime: new Date("2025-04-22T07:45:00Z"),
-      endTime: new Date("2025-04-22T07:51:00Z"), // 6 minutes
-      completedCycles: 20,
-      configurationId: 12, // Boost d'énergie le matin
-    },
-    {
-      id: 6,
-      startTime: new Date("2025-04-22T16:10:00Z"),
-      endTime: new Date("2025-04-22T16:16:00Z"), // 6 minutes
-      completedCycles: 25,
-      configurationId: 13, // Configuration personnalisée d'un utilisateur
-    },
-
-    // Session avec moins de cycles que prévu (interruption)
-    {
-      id: 7,
-      startTime: new Date("2025-04-23T09:30:00Z"),
-      endTime: new Date("2025-04-23T09:33:00Z"),
-      completedCycles: 8, // L'utilisateur a interrompu avant la fin
-      configurationId: 1, // Cohérence cardiaque standard (normalement 30 cycles)
-    },
-
-    // Sessions plus récentes
-    {
-      id: 8,
-      startTime: new Date("2025-05-01T07:00:00Z"),
-      endTime: new Date("2025-05-01T07:05:30Z"),
-      completedCycles: 12,
-      configurationId: 9, // 5-5-5 équilibrée
-    },
-    {
-      id: 9,
-      startTime: new Date("2025-05-01T14:20:00Z"),
-      endTime: new Date("2025-05-01T14:24:30Z"),
-      completedCycles: 12,
-      configurationId: 11, // Souffle apaisant
-    },
-    {
-      id: 10,
-      startTime: new Date("2025-05-02T06:45:00Z"),
-      endTime: new Date("2025-05-02T06:51:00Z"),
-      completedCycles: 15,
-      configurationId: 6, // Respiration abdominale profonde
-    },
-
-    // Session en cours (sans endTime)
-    {
-      id: 11,
-      startTime: new Date("2025-05-03T10:30:00Z"), // Aujourd'hui
-      endTime: null, // Session en cours ou interrompue sans fin explicite
-      completedCycles: 3, // Cycles complétés jusqu'à présent
-      configurationId: 2, // Cohérence cardiaque débutant
-    },
-  ];
-
-  // Exemple d'utilisation avec Prisma dans un script de seed
-  async function seedBreathingExerciseSessions() {
-    for (const session of breathingExerciseSessions) {
-      const { id, ...sessionData } = session;
-      await prisma.breathingExerciseSession.upsert({
-        where: { id },
-        update: sessionData,
-        create: sessionData,
-      });
-    }
-
-    console.log("Breathing exercise sessions seeded successfully!");
   }
   //#endregion
 
@@ -981,7 +885,6 @@ Les adaptogènes sont des plantes et champignons qui aident l'organisme à s'ada
   await seedContents();
   await seedBreathingExerciseTypes();
   await seedBreathingExerciseConfigurations();
-  await seedBreathingExerciseSessions();
 }
 
 main()

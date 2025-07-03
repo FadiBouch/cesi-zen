@@ -1,0 +1,45 @@
+services:
+  db_test:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: cesi-zen
+    volumes:
+      - data_test:/var/lib/postgresql/data
+    ports:
+      - "21501:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cesizen_test
+
+  api_test:
+    image: ghcr.io/fadibouch/cesi-zen-api:latest
+    environment:
+      DATABASE_URL: postgresql://postgres:1234@db_test:5432/cesi-zen?schema=public
+    ports:
+      - "3000:3000"
+    depends_on:
+      db_test:
+        condition: service_healthy
+    networks:
+      - cesizen_test
+
+  web_test:
+    image: ghcr.io/fadibouch/cesi-zen-web:latest
+    environment:
+      - VITE_BASE_URL=http://44.212.98.79:3000
+    ports:
+      - "80:5173"
+    networks:
+      - cesizen_test
+
+networks:
+  cesizen_test:
+volumes:
+  data_test:

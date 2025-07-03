@@ -14,7 +14,7 @@ export interface AuthRequest extends Request {
 }
 
 export interface RegisterData {
-  userName: string;
+  username: string;
   email: string;
   password: string;
   firstName?: string;

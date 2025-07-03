@@ -60,7 +60,8 @@ export default function HomePage() {
           <Text style={styles.welcomeTitle}>
             {isAuthenticated
               ? `Bienvenue, ${user?.userName || "utilisateur"} !`
-              : "Bienvenue dans notre application de respiration"}
+              : "Bienvenue dans notre application de respiration " +
+                process.env.EXPO_PUBLIC_BASE_URL}
           </Text>
           <Text style={styles.welcomeText}>
             Découvrez des exercices de respiration et des contenus pour vous

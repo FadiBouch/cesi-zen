@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import UserController from "../controllers/userController";
 import {
@@ -15,7 +15,7 @@ import { log } from "console";
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const {
-      userName,
+      username,
       password,
       email,
       firstName,
@@ -23,7 +23,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       role = "User",
     } = req.body as RegisterData;
 
-    const exists = await UserController.exists(userName, email);
+    const exists = await UserController.exists(username, email);
     if (exists) {
       res.status(400).json({
         message: "Cet utilisateur ou cette adresse email existe déjà.",
@@ -43,7 +43,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     }
 
     const newUser = await UserController.create({
-      userName,
+      username,
       email,
       password,
       firstName,
@@ -71,10 +71,10 @@ export const createAdmin = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { userName, password, email, firstName, lastName } =
+    const { username, password, email, firstName, lastName } =
       req.body as RegisterData;
 
-    const exists = await UserController.exists(userName, email);
+    const exists = await UserController.exists(username, email);
     if (exists) {
       res.status(400).json({
         message: "Cet utilisateur ou cette adresse email existe déjà.",
@@ -82,7 +82,7 @@ export const createAdmin = async (
       return;
     }
     const newUser = await UserController.create({
-      userName,
+      username,
       email,
       password,
       firstName,

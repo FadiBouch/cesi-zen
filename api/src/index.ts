@@ -34,7 +34,7 @@ async function main() {
   // FIN ROUTES
 
   app.listen(port, "0.0.0.0", () => {
-    console.log(`App running and listening on http://localhost:${port}`);
+    console.log(`App running and listening on http://0.0.0.0:${port}`);
   });
   app.get("/", (req, res) => {
     res.send("Hello World!");

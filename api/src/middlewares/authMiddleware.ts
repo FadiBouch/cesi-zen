@@ -52,7 +52,6 @@ export const authorize = (roles: string | string[] = []) => {
     }
 
     try {
-      // Récupérer les informations actualisées de l'utilisateur
       const user = await UserController.findById(req.user.id);
 
       if (!user) {
@@ -60,13 +59,11 @@ export const authorize = (roles: string | string[] = []) => {
         return;
       }
 
-      // Vérifier si le compte est actif
       if (!user.isActive) {
         res.status(403).json({ message: "Ce compte a été désactivé." });
         return;
       }
 
-      // Vérifier le rôle de l'utilisateur
       const userRole = await prisma.role.findFirst({
         where: { id: user.roleId },
       });
