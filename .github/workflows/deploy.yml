@@ -37,10 +37,15 @@ jobs:
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
+      - name: Debug SSH host resolution
+        run: |
+          echo "Testing SSH_HOST: ${{ secrets.SSH_HOST }}"
+          ping -c 2 ${{ secrets.SSH_HOST }} || echo "Ping failed"
+          nc -zv ${{ secrets.SSH_HOST }} 22 || echo "Port 22 unreachable"
+
       - name: Add SSH server to known_hosts
         run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts || echo "ssh-keyscan failed"
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
       - name: SCP docker-compose.${{ inputs.env }}.yml to server
         run: |
