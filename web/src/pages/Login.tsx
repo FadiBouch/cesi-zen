@@ -50,7 +50,9 @@ const Login: React.FC = () => {
     <div className="flex justify-center items-center min-h-screen w-screen bg-gray-100">
       <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
         <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold text-gray-800">Admin Panel</h1>
+          <h1 className="text-2xl font-bold text-gray-800">
+            Admin Panel (Test Env.)
+          </h1>
           <p className="text-gray-600">
             Connexion à l'interface d'administration
           </p>
