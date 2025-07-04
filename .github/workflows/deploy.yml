@@ -57,7 +57,7 @@ jobs:
 
       - name: SCP docker-compose.${{ inputs.env }}.yml to server
         run: |
-          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null docker-compose.${{ inputs.env }}.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/${{ inputs.env }}/.
+          scp docker-compose.${{ inputs.env }}.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/${{ inputs.env }}/.
 
       - name: Run Tests
         run: |
