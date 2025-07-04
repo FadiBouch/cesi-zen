@@ -37,8 +37,8 @@ jobs:
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Add SSH server to known_hosts
-        run: ssh-keyscan 44.212.98.79 >> ~/.ssh/known_hosts
+      # - name: Add SSH server to known_hosts
+      #   run: ssh-keyscan 44.212.98.79 >> ~/.ssh/known_hosts
 
       # - name: Debug SSH host resolution
       #   run: |
@@ -57,7 +57,7 @@ jobs:
 
       - name: SCP docker-compose.${{ inputs.env }}.yml to server
         run: |
-          scp docker-compose.${{ inputs.env }}.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/${{ inputs.env }}/.
+          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null docker-compose.${{ inputs.env }}.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/${{ inputs.env }}/.
 
       - name: Run Tests
         run: |
