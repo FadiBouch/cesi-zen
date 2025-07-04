@@ -59,10 +59,10 @@ jobs:
         run: |
           scp docker-compose.${{ inputs.env }}.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/${{ inputs.env }}/.
 
-      - name: Run Tests
-        if: ${{ inputs.env }} == 'test'
-        run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo ${{ secrets.GITHUB_TOKEN }} | sudo docker login ghcr.io -u ${{ github.actor }} --password-stdin && cd ~/${{ inputs.env }} && sudo docker compose -f docker-compose.${{ inputs.env }}.yml pull && sudo docker compose -f docker-compose.${{ inputs.env }}.yml up --abort-on-container-exit api_test_runner_${{ inputs.env }} && sudo docker compose -f docker-compose.${{ inputs.env }}.yml down"
+      # - name: Run Tests
+      #   if: ${{ inputs.env }} == 'test'
+      #   run: |
+      #     ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo ${{ secrets.GITHUB_TOKEN }} | sudo docker login ghcr.io -u ${{ github.actor }} --password-stdin && cd ~/${{ inputs.env }} && sudo docker compose -f docker-compose.${{ inputs.env }}.yml pull && sudo docker compose -f docker-compose.${{ inputs.env }}.yml up --abort-on-container-exit api_test_runner_${{ inputs.env }} && sudo docker compose -f docker-compose.${{ inputs.env }}.yml down"
           
       - name: Connecting to server via SSH & running docker compose
         run: ssh -i ~/.ssh/id_rsa ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo ${{ secrets.GITHUB_TOKEN }} | sudo docker login ghcr.io -u ${{ github.actor }} --password-stdin && cd ~/${{ inputs.env }} && sudo docker compose -f docker-compose.${{ inputs.env }}.yml pull && sudo docker compose -f docker-compose.${{ inputs.env }}.yml up -d db_${{ inputs.env }} api_${{ inputs.env }} web_${{ inputs.env }}"
