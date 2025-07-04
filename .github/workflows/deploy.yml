@@ -38,7 +38,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
 
       - name: Add SSH server to known_hosts
-        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+        run: ssh-keyscan -H 44.212.98.79  >> ~/.ssh/known_hosts
 
       # - name: Debug SSH host resolution
       #   run: |
