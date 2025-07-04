@@ -41,7 +41,7 @@ services:
       DATABASE_URL: postgresql://postgres:STnIoySaq3BxmUIONrcs@db_prod:5432/cesi-zen?schema=public
     command: npm test
     depends_on:
-      db_test:
+      db_prod:
         condition: service_healthy
     networks:
       - cesizen_prod
