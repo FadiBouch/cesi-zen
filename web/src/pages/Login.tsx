@@ -51,7 +51,7 @@ const Login: React.FC = () => {
       <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold text-gray-800">
-            Admin Panel (Test Env.)
+            Admin Panel (Prod Env.)
           </h1>
           <p className="text-gray-600">
             Connexion à l'interface d'administration
