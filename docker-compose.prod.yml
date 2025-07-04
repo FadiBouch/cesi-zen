@@ -21,7 +21,7 @@ services:
       - cesizen_prod
 
   api_prod:
-    image: ghcr.io/fadibouch/cesi-zen-api:latest
+    image: ghcr.io/fadibouch/cesi-zen-api:main
     restart: always
     # env_file:
     #   - .env
@@ -35,8 +35,19 @@ services:
     networks:
       - cesizen_prod
 
+  api_test_runner_prod:
+    image: ghcr.io/fadibouch/cesi-zen/cesi-zen-api:main
+    environment:
+      DATABASE_URL: postgresql://postgres:STnIoySaq3BxmUIONrcs@db_prod:5432/cesi-zen?schema=public
+    command: npm test
+    depends_on:
+      db_test:
+        condition: service_healthy
+    networks:
+      - cesizen_test
+
   web_prod:
-    image: ghcr.io/fadibouch/cesi-zen-web:latest
+    image: ghcr.io/fadibouch/cesi-zen-web:main
     restart: always
     environment:
       - VITE_BASE_URL=http://44.212.98.79:3001

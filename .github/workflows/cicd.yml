@@ -77,7 +77,7 @@ jobs:
     with:
       env: prod
       branch: main
-      url: http://ec2-52-5-66-97.compute-1.amazonaws.com/
+      url: http://ec2-52-5-66-97.compute-1.amazonaws.com
     secrets:
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_USER: ${{ secrets.SSH_USER }}
@@ -94,7 +94,7 @@ jobs:
     with:
       env: test
       branch: develop
-      url: http://ec2-52-5-66-97.compute-1.amazonaws.com/:8080
+      url: http://ec2-52-5-66-97.compute-1.amazonaws.com:8080
     secrets:
       SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_USER: ${{ secrets.SSH_USER }}
