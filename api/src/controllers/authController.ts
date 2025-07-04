@@ -143,18 +143,37 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    const refreshSecret = process.env.REFRESH_SECRET;
+    if (!refreshSecret) {
+      res.status(400).json({ message: "Erreur configuration refresh token." });
+      return;
+    }
+
     const token = jwt.sign(
       {
         id: user.id,
         username: user.userName,
         role: role.name,
+        type: 'access'
       },
       process.env.JWT_SECRET as string,
-      { expiresIn: parseInt(jwtExpiresIn) }
+      { expiresIn: '15m' }
+    );
+
+    const refreshToken = jwt.sign(
+      {
+        id: user.id,
+        username: user.userName,
+        role: role.name,
+        type: 'refresh'
+      },
+      refreshSecret,
+      { expiresIn: '7d' }
     );
 
     res.json({
       token,
+      refreshToken,
       user: {
         id: user.id,
         username: user.userName,
@@ -166,6 +185,88 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error) {
     console.error("Erreur lors de la connexion:", error);
+    res.status(500).json({
+      message: "Erreur serveur",
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+export const refreshToken = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      res.status(401).json({ message: "Refresh token requis." });
+      return;
+    }
+
+    const refreshSecret = process.env.REFRESH_SECRET;
+    if (!refreshSecret) {
+      res.status(500).json({ message: "Erreur configuration serveur." });
+      return;
+    }
+
+    jwt.verify(refreshToken, refreshSecret, async (err: any, decoded: any) => {
+      if (err) {
+        res.status(403).json({ message: "Refresh token invalide ou expiré." });
+        return;
+      }
+
+      if (decoded.type !== 'refresh') {
+        res.status(403).json({ message: "Token invalide." });
+        return;
+      }
+
+      const user = await UserController.findById(decoded.id);
+      if (!user || !user.isActive) {
+        res.status(403).json({ message: "Utilisateur introuvable ou inactif." });
+        return;
+      }
+
+      const role = await prisma.role.findFirst({ where: { id: user.roleId } });
+      if (!role) {
+        res.status(404).json({ message: "Le rôle est introuvable." });
+        return;
+      }
+
+      const newToken = jwt.sign(
+        {
+          id: user.id,
+          username: user.userName,
+          role: role.name,
+          type: 'access'
+        },
+        process.env.JWT_SECRET as string,
+        { expiresIn: '15m' }
+      );
+
+      const newRefreshToken = jwt.sign(
+        {
+          id: user.id,
+          username: user.userName,
+          role: role.name,
+          type: 'refresh'
+        },
+        refreshSecret,
+        { expiresIn: '7d' }
+      );
+
+      res.json({
+        token: newToken,
+        refreshToken: newRefreshToken,
+        user: {
+          id: user.id,
+          username: user.userName,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: role,
+        },
+      });
+    });
+  } catch (error) {
+    console.error("Erreur lors du refresh token:", error);
     res.status(500).json({
       message: "Erreur serveur",
       error: error instanceof Error ? error.message : String(error),

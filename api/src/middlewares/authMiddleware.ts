@@ -31,7 +31,14 @@ export const authenticateToken = (
       return;
     }
 
-    req.user = decoded as JwtPayload;
+    const payload = decoded as JwtPayload & { type?: string };
+    
+    if (payload.type && payload.type !== 'access') {
+      res.status(403).json({ message: "Type de token invalide." });
+      return;
+    }
+
+    req.user = payload;
     next();
   });
 };

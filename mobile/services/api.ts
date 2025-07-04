@@ -5,7 +5,8 @@ const API_URL = process.env.EXPO_PUBLIC_BASE_URL;
 
 export const fetchWithToken = async (
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  retryCount: number = 0
 ) => {
   const token = await AsyncStorage.getItem("auth_token");
 
@@ -20,15 +21,30 @@ export const fetchWithToken = async (
     headers,
   };
 
-  // console.log(
-  //   `calling ${API_URL}${endpoint}\nconfig : ${JSON.stringify(config)}`
-  // );
-
   const response = await fetch(`${API_URL}${endpoint}`, config);
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || "Une erreur est survenue");
+    
+    // Si token expiré et pas déjà en train de refresh
+    if (response.status === 403 && retryCount === 0 && endpoint !== "/auth/refresh") {
+      try {
+        // Tentative de refresh
+        const { refreshToken } = await import("./auth");
+        const refreshResult = await refreshToken();
+        
+        if (refreshResult) {
+          // Retry la requête avec le nouveau token
+          return fetchWithToken(endpoint, options, retryCount + 1);
+        }
+      } catch (refreshError) {
+        console.log("Auto-refresh failed:", refreshError);
+      }
+    }
+    
+    const error = new Error(errorData.message || "Une erreur est survenue");
+    (error as any).status = response.status;
+    throw error;
   }
 
   return response.json();

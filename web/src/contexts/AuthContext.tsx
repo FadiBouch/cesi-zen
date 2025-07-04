@@ -101,6 +101,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         if (decoded.exp && decoded.exp < currentTime) {
           localStorage.removeItem("token");
+          localStorage.removeItem("refreshToken");
           setIsAuthenticated(false);
           setUser(null);
           return;
@@ -119,6 +120,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } catch (error) {
         console.error("Erreur lors de la vérification du token:", error);
         localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
         setIsAuthenticated(false);
         setUser(null);
       }
@@ -156,7 +158,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         username,
         password,
       });
-      const { token, user } = response.data;
+      const { token, refreshToken, user } = response.data;
 
       if (user.role.name !== "Admin") {
         throw new Error(
@@ -164,8 +166,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         );
       }
 
-      // Sauvegarder le token
+      // Sauvegarder les tokens
       localStorage.setItem("token", token);
+      localStorage.setItem("refreshToken", refreshToken);
 
       setUser(user);
       setIsAuthenticated(true);
@@ -182,8 +185,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     console.log("🚪 LOGOUT appelé");
-    console.log("🗑️ Suppression token du localStorage");
+    console.log("🗑️ Suppression tokens du localStorage");
     localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
     setIsAuthenticated(false);
     setUser(null);
   };

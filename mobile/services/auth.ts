@@ -17,6 +17,7 @@ export const login = async (
   });
 
   await AsyncStorage.setItem("auth_token", response.token);
+  await AsyncStorage.setItem("refresh_token", response.refreshToken);
   console.log(`login() response : ${response}`);
   return response;
 };
@@ -38,11 +39,13 @@ export const register = async (data: RegisterData): Promise<AuthResponse> => {
   });
 
   await AsyncStorage.setItem("auth_token", loginResponse.token);
+  await AsyncStorage.setItem("refresh_token", loginResponse.refreshToken);
   return response;
 };
 
 export const logout = async (): Promise<void> => {
   await AsyncStorage.removeItem("auth_token");
+  await AsyncStorage.removeItem("refresh_token");
 };
 
 export const checkAuth = async (): Promise<boolean> => {
@@ -63,10 +66,38 @@ export const checkAuth = async (): Promise<boolean> => {
     // Si le token est invalide (403 ou autre erreur d'auth), on le supprime
     if (error.status === 403 || error.status === 401) {
       await AsyncStorage.removeItem("auth_token");
-      console.log("Invalid token removed from storage");
+      await AsyncStorage.removeItem("refresh_token");
+      console.log("Invalid tokens removed from storage");
     }
 
     return false;
+  }
+};
+
+export const refreshToken = async (): Promise<AuthResponse | null> => {
+  try {
+    const refreshToken = await AsyncStorage.getItem("refresh_token");
+    
+    if (!refreshToken) {
+      console.log("No refresh token found");
+      return null;
+    }
+
+    const response = await fetchWithToken("/auth/refresh", {
+      method: "POST",
+      body: JSON.stringify({ refreshToken }),
+    });
+
+    await AsyncStorage.setItem("auth_token", response.token);
+    await AsyncStorage.setItem("refresh_token", response.refreshToken);
+    
+    console.log("Token refreshed successfully");
+    return response;
+  } catch (error) {
+    console.log("Token refresh failed:", error);
+    await AsyncStorage.removeItem("auth_token");
+    await AsyncStorage.removeItem("refresh_token");
+    return null;
   }
 };
 
