@@ -44,7 +44,7 @@ services:
       db_test:
         condition: service_healthy
     networks:
-      - cesizen_test
+      - cesizen_prod
 
   web_prod:
     image: ghcr.io/fadibouch/cesi-zen-web:main
