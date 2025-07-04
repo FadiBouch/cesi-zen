@@ -35,16 +35,16 @@ services:
     networks:
       - cesizen_prod
 
-  api_test_runner_prod:
-    image: ghcr.io/fadibouch/cesi-zen/cesi-zen-api:main
-    environment:
-      DATABASE_URL: postgresql://postgres:STnIoySaq3BxmUIONrcs@db_prod:5432/cesi-zen?schema=public
-    command: npm test
-    depends_on:
-      db_prod:
-        condition: service_healthy
-    networks:
-      - cesizen_prod
+  # api_test_runner_prod:
+  #   image: ghcr.io/fadibouch/cesi-zen/cesi-zen-api:main
+  #   environment:
+  #     DATABASE_URL: postgresql://postgres:STnIoySaq3BxmUIONrcs@db_prod:5432/cesi-zen?schema=public
+  #   command: npm test
+  #   depends_on:
+  #     db_prod:
+  #       condition: service_healthy
+  #   networks:
+  #     - cesizen_prod
 
   web_prod:
     image: ghcr.io/fadibouch/cesi-zen-web:main
