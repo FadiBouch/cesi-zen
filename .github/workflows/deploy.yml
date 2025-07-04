@@ -46,9 +46,9 @@ jobs:
       #     ping -c 2 ${{ secrets.SSH_HOST }} || echo "Ping failed"
       #     nc -zv ${{ secrets.SSH_HOST }} 22 || echo "Port 22 unreachable"
 
-      # # - name: Add SSH server to known_hosts
-      # #   run: |
-      # #     ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+      - name: Add SSH server to known_hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
       # - name: Verbose ssh-keyscan debug
       #   run: |
       #     mkdir -p ~/.ssh
