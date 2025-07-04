@@ -31,7 +31,7 @@ services:
     networks:
       - cesizen_test
 
-  api_test_runner:
+  api_test_runner_test:
     image: ghcr.io/fadibouch/cesi-zen/cesi-zen-api:develop
     environment:
       DATABASE_URL: postgresql://postgres:1234@db_test:5432/cesi-zen?schema=public
