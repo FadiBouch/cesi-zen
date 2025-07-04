@@ -138,7 +138,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     const jwtExpiresIn = process.env.JWT_EXPIRES_IN;
-    console.log("JWT EXPIRES IN", jwtExpiresIn);
     if (!jwtExpiresIn) {
       res.status(400).json({ message: "Erreur JWT (expiresIn)." });
       return;
