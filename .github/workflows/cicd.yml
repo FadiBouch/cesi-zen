@@ -1,0 +1,102 @@
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+
+jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Audit API dependencies
+        run: |
+          cd api
+          npm audit --audit-level=high
+      - name: Audit Web dependencies
+        run: |
+          cd web
+          npm audit --audit-level=high
+      - name: Audit Mobile dependencies
+        run: |
+          cd mobile
+          npm audit --audit-level=high
+
+  build-docker:
+    runs-on: ubuntu-latest
+    needs: security-audit
+    permissions:
+      contents: read
+      packages: write
+    steps: 
+      - uses: actions/checkout@v4
+
+      - name: Login to GitHub Container registery
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Build and push Docker image (manual)
+      #   run: | 
+      #     docker build -t ghcr.io/${{ github.repository }}/next-devops:latest .
+      #     docker push -t ghcr.io/${{ github.repository }}/next-devops:latest
+
+      - name: Build and push API Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./api
+          push: true
+          tags: ghcr.io/fadibouch/cesi-zen/cesi-zen-api:${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
+          
+      - name: Build and push WEB Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./web
+          push: true
+          tags: ghcr.io/fadibouch/cesi-zen/cesi-zen-web:${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
+
+  deploy-prod:
+    if: |
+      github.event_name == 'pull_request' && 
+      github.event.pull_request.base.ref == 'main'  || 
+      github.event_name == 'push' && 
+      github.ref_name == 'main'
+    needs: build-docker
+    uses: fadibouch/cesi-zen/.github/workflows/deploy.yml@develop
+    with:
+      env: prod
+      branch: main
+      url: http://ec2-52-5-66-97.compute-1.amazonaws.com/
+    secrets:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+
+  deploy-test:
+    if: |
+      github.event_name == 'pull_request' && 
+      github.event.pull_request.base.ref == 'develop' || 
+      github.event_name == 'push' && 
+      github.ref_name == 'develop'
+    needs: build-docker
+    uses: fadibouch/cesi-zen/.github/workflows/deploy.yml@develop
+    with:
+      env: test
+      branch: develop
+      url: http://ec2-52-5-66-97.compute-1.amazonaws.com/:8080
+    secrets:
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      
