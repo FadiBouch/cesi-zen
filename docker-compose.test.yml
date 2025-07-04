@@ -20,7 +20,7 @@ services:
       - cesizen_test
 
   api_test:
-    image: ghcr.io/fadibouch/cesi-zen-api:latest
+    image: ghcr.io/fadibouch/cesi-zen/cesi-zen-api:develop
     environment:
       DATABASE_URL: postgresql://postgres:1234@db_test:5432/cesi-zen?schema=public
     ports:
@@ -32,7 +32,7 @@ services:
       - cesizen_test
 
   api_test_runner:
-    image: ghcr.io/fadibouch/cesi-zen-api:latest
+    image: ghcr.io/fadibouch/cesi-zen/cesi-zen-api:develop
     environment:
       DATABASE_URL: postgresql://postgres:1234@db_test:5432/cesi-zen?schema=public
     command: npm test
@@ -43,7 +43,7 @@ services:
       - cesizen_test
 
   web_test:
-    image: ghcr.io/fadibouch/cesi-zen-web:latest
+    image: ghcr.io/fadibouch/cesi-zen/cesi-zen-web:develop
     environment:
       - VITE_BASE_URL=http://44.212.98.79:3000
     ports:
